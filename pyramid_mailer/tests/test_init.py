@@ -1,6 +1,5 @@
 import unittest
-from pyramid import testing
-from webtest import TestApp
+
 
 class TestGetMailer(unittest.TestCase):
 
@@ -26,6 +25,7 @@ class TestGetMailer(unittest.TestCase):
 
     def test_rebind(self):
         from pyramid_mailer import Mailer
+
         class Dummy(object):
             pass
         mailer = Mailer()
@@ -60,52 +60,6 @@ class Test_includeme(unittest.TestCase):
         self._do_includeme(config)
         self.assertEqual(registry.registered[IMailer].default_sender, 'sender')
 
-class TestFunctional(unittest.TestCase):
-    def setUp(self):
-        self.config = testing.setUp()
-
-    def tearDown(self):
-        testing.tearDown()
-
-    def test_get_mailer_realthing(self):
-        from pyramid_mailer import get_mailer
-        from pyramid_mailer.mailer import Mailer
-        self.config.include('pyramid_mailer')
-        request = testing.DummyRequest()
-        mailer = get_mailer(request)
-        self.assertEqual(mailer.__class__, Mailer)
-
-    def test_get_mailer_dummy(self):
-        from pyramid_mailer import get_mailer
-        from pyramid_mailer.testing import DummyMailer
-        self.config.include('pyramid_mailer.testing')
-        request = testing.DummyRequest()
-        mailer = get_mailer(request)
-        self.assertEqual(mailer.__class__, DummyMailer)
-
-    def test_get_mailer_dummy_with_tm(self):
-        from pyramid_mailer import get_mailer
-        from pyramid_mailer.testing import DummyMailer
-        self.config.include('pyramid_mailer.testing')
-        request = testing.DummyRequest(tm='foo')
-        mailer = get_mailer(request)
-        self.assertEqual(mailer.__class__, DummyMailer)
-
-    def test_request_binding(self):
-        from pyramid_mailer import get_mailer
-        from pyramid_mailer.mailer import Mailer
-        self.config.include('pyramid_mailer')
-        result = []
-        def view(request):
-            request.tm = 'foo'
-            mailer = get_mailer(request)
-            result.append(mailer)
-            return request.response
-        self.config.add_view(view)
-        app = self.config.make_wsgi_app()
-        TestApp(app).get('/')
-        self.assertTrue(isinstance(result[0], Mailer))
-        self.assertEqual(result[0].transaction_manager, 'foo')
 
 class DummyRegistry(object):
     def __init__(self, result=None):

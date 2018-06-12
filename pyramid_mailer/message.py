@@ -46,13 +46,13 @@ from email.encoders import _bencode
 from .exceptions import (
     BadHeaders,
     InvalidMessage,
-    )
+)
 
 from ._compat import (
     text_type,
     PY2,
     _qencode,
-    )
+)
 
 
 class Attachment(object):
@@ -81,7 +81,7 @@ class Attachment(object):
         disposition=None,
         transfer_encoding=None,
         content_id=None,
-        ):
+    ):
         self.filename = filename
         self.content_type = content_type
         self.disposition = disposition or 'attachment'
@@ -105,7 +105,7 @@ class Attachment(object):
 
         if not data:
             raise RuntimeError('No data provided to attachment')
-        
+
         if filename and not content_type:
             content_type, _ = mimetypes.guess_type(filename)
 
@@ -113,14 +113,14 @@ class Attachment(object):
             raise RuntimeError(
                 "No content type given, and couldn't guess "
                 "the content type from a filename provided (%r)" % filename
-                )
+            )
 
         content_type, ctparams = cgi.parse_header(content_type)
         disposition, dparams = cgi.parse_header(disposition)
 
         if filename is None:
             filename = dparams.get('filename')
-        
+
         if filename:
             filename = os.path.split(filename)[1]
             ctparams['name'] = filename
@@ -128,9 +128,9 @@ class Attachment(object):
 
         base = MailBase()
         base.set_content_type(content_type, ctparams)
-        
+
         charset = ctparams.get('charset', None)
-        
+
         if content_type.startswith('text/'):
             if charset is None:
                 charset = best_charset(self.data)[0]
@@ -144,6 +144,7 @@ class Attachment(object):
             base['Content-Id'] = content_id
 
         return base
+
 
 class Message(object):
     """
@@ -174,8 +175,8 @@ class Message(object):
         bcc=None,
         extra_headers=None,
         attachments=None
-        ):
-        
+    ):
+
         self.subject = subject or ''
         self.sender = sender
         self.body = body
@@ -197,7 +198,7 @@ class Message(object):
         """
 
         self.validate()
-        
+
         bodies = [(self.body, 'text/plain'), (self.html, 'text/html')]
 
         for idx, (val, content_type) in enumerate(bodies):
@@ -212,7 +213,7 @@ class Message(object):
                     content_type=content_type,
                     transfer_encoding='quoted-printable',
                     disposition='inline'
-                    )
+                )
                 bodies[idx] = attachment.to_mailbase(content_type)
 
         body, html = bodies
@@ -221,7 +222,7 @@ class Message(object):
             ('To', ', '.join(self.recipients)),
             ('From', self.sender),
             ('Subject', self.subject),
-            ])
+        ])
 
         # base represents the outermost mime part; it will be one of the
         # following types:
@@ -247,7 +248,7 @@ class Message(object):
 
         if self.cc:
             base['Cc'] = ', '.join(self.cc)
-            
+
         if self.extra_headers:
             base.update(dict(self.extra_headers))
 
@@ -257,7 +258,6 @@ class Message(object):
             base.attach_part(altpart)
         else:
             altpart = base
-            
         if body and html:
             altpart.set_content_type('multipart/alternative')
             altpart.set_body(None)
@@ -349,6 +349,7 @@ class MailBase(object):
     encoding an email.  You actually can do all your email processing with this
     class, but it's more raw.
     """
+
     def __init__(self, items=()):
         self.headers = dict(items)
         self.parts = []
@@ -404,9 +405,9 @@ class MailBase(object):
         del self.headers[normalize_header(key)]
 
     def __nonzero__(self):
-        return self.body != None or len(
+        return self.body != None or len(  # noqa
             self.headers) > 0 or len(self.parts) > 0
-    
+
     __bool__ = __nonzero__
 
     def keys(self):
@@ -426,6 +427,7 @@ class MailBase(object):
 
     def attach_part(self, part):
         self.parts.append(part)
+
 
 def to_message(base):
     """
@@ -447,7 +449,7 @@ def to_message(base):
     if base.parts and not is_multipart:
         raise RuntimeError(
             'Content type should be multipart, not %r' % ctype
-            )
+        )
 
     body = base.get_body()
     ctenc = base.get_transfer_encoding()
@@ -476,7 +478,7 @@ def to_message(base):
                 body = body.decode(charset or 'ascii', 'replace')
         out.set_payload(body, charset)
 
-    for k in base.keys(): # returned sorted
+    for k in base.keys():  # returned sorted
         value = base[k]
         if not value:
             continue
@@ -494,8 +496,10 @@ def to_message(base):
 
     return out
 
+
 def normalize_header(header):
     return string.capwords(header.lower(), '-')
+
 
 def transfer_encode(encoding, payload):
     # payload must be bytes
@@ -508,12 +512,14 @@ def transfer_encode(encoding, payload):
         try:
             text_type(payload, 'ascii')
         except UnicodeDecodeError:
-            raise RuntimeError('Payload contains an octet that is not 7bit safe')
+            raise RuntimeError(
+                'Payload contains an octet that is not 7bit safe')
         return payload
     elif encoding == '8bit':
         return payload
     else:
         raise RuntimeError('Unknown transfer encoding %s' % encoding)
+
 
 def best_charset(text):
     """
@@ -531,6 +537,7 @@ def best_charset(text):
         else:
             return charset, encoded
 
+
 # From http://tools.ietf.org/html/rfc5322#section-3.6
 ADDR_HEADERS = (
     'resent-from',
@@ -544,4 +551,4 @@ ADDR_HEADERS = (
     'to',
     'cc',
     'bcc'
-    )
+)

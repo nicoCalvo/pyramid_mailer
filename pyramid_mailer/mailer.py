@@ -5,8 +5,10 @@ from os.path import join
 from random import sample
 import smtplib
 
-from pyramid.settings import asbool
-from pyramid.settings import aslist
+from pyramid_mailer.custom_pyramid import (
+    asbool,
+    aslist
+)
 from repoze.sendmail.mailer import SMTPMailer
 from repoze.sendmail.mailer import SendmailMailer
 from repoze.sendmail.delivery import DirectMailDelivery
@@ -35,6 +37,7 @@ class DebugMailer(object):
 
     Stores messages as files in the specified directory.
     """
+
     def __init__(self, top_level_directory, include_bcc=False):
         if not exists(top_level_directory):
             makedirs(top_level_directory)
@@ -153,7 +156,7 @@ class DummyMailer(object):
         """
         self.queue.append(message)
 
-    def send_sendmail(self, message ):
+    def send_sendmail(self, message):
         """Mock sending a transactional message via sendmail.
 
         The message is added to the 'outbox' list.
@@ -186,14 +189,14 @@ class SMTP_SSLMailer(SMTPMailer):
     def smtp_factory(self):
         if self.smtp is None:
             raise RuntimeError(
-                    'No SMTP_SSL support in Python usable by mailer')
+                'No SMTP_SSL support in Python usable by mailer')
 
         connection = self.smtp(
             self.hostname,
             str(self.port),
             keyfile=self.keyfile,
             certfile=self.certfile
-            )
+        )
         connection.set_debuglevel(self.debug_smtp)
         return connection
 
@@ -304,7 +307,7 @@ class Mailer(object):
         size = len(prefix)
 
         kwargs = dict(((k[size:], settings[k]) for k in settings.keys() if
-                        k in kwarg_names))
+                       k in kwarg_names))
 
         for key in ('tls', 'ssl'):
             val = kwargs.get(key)
@@ -403,7 +406,7 @@ class Mailer(object):
         msg = message.to_message()
         return (message.sender, message.send_to, msg)
 
-    def send_sendmail(self, message ):
+    def send_sendmail(self, message):
         """Send a message within the transaction manager.
 
         Uses the local sendmail option
@@ -427,6 +430,6 @@ class Mailer(object):
         """
         try:
             return self.sendmail_mailer.send(*self._message_args(message))
-        except:
+        except Exception:
             if not fail_silently:
                 raise

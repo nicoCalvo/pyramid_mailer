@@ -38,7 +38,7 @@ class DebugMailerTests(_Base):
         from shutil import rmtree
         tempdir = self._makeTempdir()
         rmtree(tempdir)
-        mailer = self._makeOne(tempdir)
+        self._makeOne(tempdir)
         self.assertTrue(isdir(tempdir))
 
     def test_from_settings(self):
@@ -48,7 +48,7 @@ class DebugMailerTests(_Base):
         self.assertEqual(mailer.tld, tempdir)
 
     def test_from_settings_wo_tld(self):
-        tempdir = self._makeTempdir()
+        self._makeTempdir()
         self.assertRaises(ValueError,
                           self._getTargetClass().from_settings, None)
 
@@ -179,7 +179,7 @@ class TestSMTP_SSLMailer(unittest.TestCase):
             port=25,
             certfile='certfile',
             keyfile='keyfile'
-            )
+        )
         inst.smtp = DummyConnectionFactory
         conn = inst.smtp_factory()
         self.assertEqual(conn.hostname, 'hostname')
@@ -187,6 +187,7 @@ class TestSMTP_SSLMailer(unittest.TestCase):
         self.assertEqual(conn.certfile, 'certfile')
         self.assertEqual(conn.keyfile, 'keyfile')
         self.assertEqual(conn.debuglevel, 9)
+
 
 class MailerTests(_Base):
 
@@ -240,8 +241,8 @@ class MailerTests(_Base):
         self.assertEqual(mailer.queue_delivery.queuePath, '/tmp')
         self.assertEqual(mailer.direct_delivery.mailer.debug_smtp, 1)
         self.assertEqual(mailer.sendmail_mailer.sendmail_app, 'sendmail_app')
-        self.assertEqual(mailer.sendmail_mailer.sendmail_template,
-                    ['{sendmail_app}', '--option1', '--option2', '{sender}'])
+        opts = ['{sendmail_app}', '--option1', '--option2', '{sender}']
+        self.assertEqual(mailer.sendmail_mailer.sendmail_template, opts)
 
     def test_from_settings_with_str_values(self):
         from smtplib import SMTP
@@ -276,8 +277,8 @@ class MailerTests(_Base):
         self.assertEqual(mailer.queue_delivery.queuePath, '/tmp')
         self.assertEqual(mailer.direct_delivery.mailer.debug_smtp, 1)
         self.assertEqual(mailer.sendmail_mailer.sendmail_app, 'sendmail_app')
-        self.assertEqual(mailer.sendmail_mailer.sendmail_template,
-                    ['{sendmail_app}', '--option1', '--option2', '{sender}'])
+        opts = ['{sendmail_app}', '--option1', '--option2', '{sender}']
+        self.assertEqual(mailer.sendmail_mailer.sendmail_template, opts)
 
     def test_invalid_init_options(self):
         self.assertRaises(ValueError, self._makeOne, foo='bar')
@@ -359,8 +360,6 @@ class MailerTests(_Base):
         mailer.send_sendmail(msg)
 
     def test_send_immediately_sendmail(self):
-        email_sender = "sender@example.com"
-        email_recipient = "tester@example.com"
         mailer = self._makeOne()
         sendmail_mailer = DummyMailer()
         mailer.sendmail_mailer = sendmail_mailer
@@ -374,8 +373,6 @@ class MailerTests(_Base):
         self.assertEqual(first[1], {'tester@example.com'})
 
     def test_send_immediately_sendmail_with_exc_fail_silently(self):
-        email_sender = "sender@example.com"
-        email_recipient = "tester@example.com"
         mailer = self._makeOne()
         sendmail_mailer = DummyMailer(ValueError())
         mailer.sendmail_mailer = sendmail_mailer
@@ -386,8 +383,6 @@ class MailerTests(_Base):
         self.assertEqual(len(out), 0)
 
     def test_send_immediately_sendmail_with_exc_fail_loudly(self):
-        email_sender = "sender@example.com"
-        email_recipient = "tester@example.com"
         mailer = self._makeOne()
         sendmail_mailer = DummyMailer(ValueError())
         mailer.sendmail_mailer = sendmail_mailer
@@ -416,15 +411,15 @@ class DummyMailer(object):
 
     def send(self, frm, to, msg):
         if self.raises:
-            raise self.raises
+            raise self.raises  # noqa
         self.out.append((frm, to, msg))
 
 
 def _makeMessage(subject="testing",
-                sender="sender@example.com",
-                recipients=["tester@example.com"],
-                body="test",
-                **kw):
+                 sender="sender@example.com",
+                 recipients=["tester@example.com"],
+                 body="test",
+                 **kw):
     from pyramid_mailer.message import Message
     return Message(subject=subject,
                    sender=sender,

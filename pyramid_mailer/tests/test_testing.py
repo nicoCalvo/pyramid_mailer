@@ -1,5 +1,6 @@
 import unittest
 
+
 class TestIncludemeTesting(unittest.TestCase):
     def test_includeme(self):
         from pyramid_mailer import get_mailer

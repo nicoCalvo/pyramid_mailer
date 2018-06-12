@@ -10,7 +10,7 @@ except NameError:
 if PY2:
     from StringIO import StringIO
 else:
-    from io import StringIO
+    from io import StringIO  # noqa
 
 try:
     from smtplib import SMTP_SSL
@@ -24,8 +24,8 @@ else:
     # but they are broken in Py3 (_qencode was not ported properly and
     # still wants to use str instead of bytes to do space replacement)
     import quopri
-    def _qencode(s):
+
+    def _qencode(s):  # noqa
         enc = quopri.encodestring(s, quotetabs=True)
         # Must encode spaces, which quopri.encodestring() doesn't do
         return enc.replace(b' ', b'=20')
-

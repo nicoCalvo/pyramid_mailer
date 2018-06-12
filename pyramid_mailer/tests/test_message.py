@@ -7,11 +7,12 @@ from pyramid_mailer._compat import (
     text_type,
     StringIO,
     _qencode,
-    )
+)
 
 from email.encoders import (
     _bencode,
-    )
+)
+
 
 class TestAttachment(unittest.TestCase):
 
@@ -36,32 +37,32 @@ class TestAttachment(unittest.TestCase):
         base = a.to_mailbase()
         self.assertEqual(
             base.get_content_type(),
-            ('text/plain', {'name':'foo.txt', 'charset':'us-ascii'})
-            )
+            ('text/plain', {'name': 'foo.txt', 'charset': 'us-ascii'})
+        )
         self.assertEqual(
             base.get_content_disposition(),
-            ('attachment', {'filename':'foo.txt'})
-            )
+            ('attachment', {'filename': 'foo.txt'})
+        )
 
     def test_to_mailbase_content_type_cannot_be_derived_from_filename(self):
         a = self._makeOne(data='bar')
         self.assertRaises(RuntimeError, a.to_mailbase)
-        
+
     def test_to_mailbase_disposition_header_provides_filename(self):
         a = self._makeOne(
             data='bar',
             disposition='attachment; filename="foo.txt"',
             content_type='text/plain',
-            )
+        )
         base = a.to_mailbase()
         self.assertEqual(
             base.get_content_type(),
-            ('text/plain', {'name':'foo.txt', 'charset':'us-ascii'})
-            )
+            ('text/plain', {'name': 'foo.txt', 'charset': 'us-ascii'})
+        )
         self.assertEqual(
             base.get_content_disposition(),
-            ('attachment', {'filename':'foo.txt'})
-            )
+            ('attachment', {'filename': 'foo.txt'})
+        )
 
     def test_to_mailbase_text_type_sets_charset_ascii(self):
         text = 'bar'
@@ -69,12 +70,12 @@ class TestAttachment(unittest.TestCase):
             data=text,
             disposition='attachment',
             content_type='text/plain',
-            )
+        )
         base = a.to_mailbase()
         self.assertEqual(
             base.get_content_type(),
-            ('text/plain', {'charset':'us-ascii'})
-            )
+            ('text/plain', {'charset': 'us-ascii'})
+        )
         self.assertEqual(base.get_body(), text)
 
     def test_to_mailbase_text_type_sets_charset_unicode_latin1(self):
@@ -85,12 +86,12 @@ class TestAttachment(unittest.TestCase):
             data=text,
             disposition='attachment',
             content_type='text/plain',
-            )
+        )
         base = a.to_mailbase()
         self.assertEqual(
             base.get_content_type(),
-            ('text/plain', {'charset':'iso-8859-1'})
-            )
+            ('text/plain', {'charset': 'iso-8859-1'})
+        )
         self.assertEqual(base.get_body(), text)
 
     def test_to_mailbase_text_type_sets_charset_unicode_utf8(self):
@@ -103,12 +104,12 @@ class TestAttachment(unittest.TestCase):
             data=text,
             disposition='attachment',
             content_type='text/plain',
-            )
+        )
         base = a.to_mailbase()
         self.assertEqual(
             base.get_content_type(),
-            ('text/plain', {'charset':'utf-8'})
-            )
+            ('text/plain', {'charset': 'utf-8'})
+        )
         self.assertEqual(base.get_body(), text)
 
     def test_to_mailbase_disposition_set(self):
@@ -116,25 +117,26 @@ class TestAttachment(unittest.TestCase):
             data='abc',
             disposition='foo',
             content_type='text/plain',
-            )
+        )
         base = a.to_mailbase()
         self.assertEqual(
             base.get_content_disposition(),
             ('foo', {})
-            )
+        )
 
     def test_to_mailbase_content_id_set(self):
         a = self._makeOne(
             data='abc',
             content_type='text/plain',
             content_id='foo-content',
-            )
+        )
         base = a.to_mailbase()
         self.assertEqual(
             base['content-id'],
             'foo-content'
-            )
-        
+        )
+
+
 class TestMessage(unittest.TestCase):
 
     def _read_filedata(self, filename, mode='r'):
@@ -144,7 +146,7 @@ class TestMessage(unittest.TestCase):
         finally:
             f.close()
         return data
-    
+
     def test_initialize(self):
 
         from pyramid_mailer.message import Message
@@ -153,7 +155,7 @@ class TestMessage(unittest.TestCase):
             subject="subject",
             sender="support@mysite.com",
             recipients=["to@example.com"]
-            )
+        )
 
         self.assertEqual(msg.subject, "subject")
         self.assertEqual(msg.sender, "support@mysite.com")
@@ -214,7 +216,7 @@ class TestMessage(unittest.TestCase):
             subject="testing",
             recipients=["to@example.com"],
             body="testing"
-            )
+        )
 
         mailer = Mailer()
 
@@ -232,7 +234,7 @@ class TestMessage(unittest.TestCase):
             subject="testing",
             recipients=[],
             body="testing"
-            )
+        )
 
         self.assertRaises(InvalidMessage, mailer.send, msg)
 
@@ -246,7 +248,7 @@ class TestMessage(unittest.TestCase):
             subject="testing",
             sender="sender@example.com",
             recipients=["to@example.com"]
-            )
+        )
 
         mailer = Mailer()
 
@@ -266,7 +268,7 @@ class TestMessage(unittest.TestCase):
             recipients=["to@example.com"],
             body="testing",
             cc=["tosomeoneelse@example.com"]
-            )
+        )
 
         response = msg.to_message()
         self.assertTrue("Cc: tosomeoneelse@example.com" in text_type(response))
@@ -281,7 +283,7 @@ class TestMessage(unittest.TestCase):
             sender="sender@example.com",
             body="testing",
             cc=["tosomeoneelse@example.com"]
-            )
+        )
         mailer = Mailer()
         msgid = mailer.send(msg)
         response = msg.to_message()
@@ -298,7 +300,7 @@ class TestMessage(unittest.TestCase):
             sender="sender@example.com",
             body="testing",
             cc=["tosomeoneelse@example.com"]
-            )
+        )
         response = msg.to_message()
         self.assertTrue("Cc: tosomeoneelse@example.com" in text_type(response))
 
@@ -312,7 +314,7 @@ class TestMessage(unittest.TestCase):
             sender="sender@example.com",
             body="testing",
             bcc=["tosomeoneelse@example.com"]
-            )
+        )
         mailer = Mailer()
         msgid = mailer.send(msg)
         response = msg.to_message()
@@ -331,7 +333,7 @@ class TestMessage(unittest.TestCase):
             recipients=["to@example.com"],
             body="testing",
             extra_headers=[('X-Foo', 'Joe')]
-            )
+        )
 
         response = msg.to_message()
         self.assertTrue("X-Foo: Joe" in text_type(response))
@@ -346,12 +348,12 @@ class TestMessage(unittest.TestCase):
             recipients=["to@example.com"],
             sender='sender',
             body="testing"
-            )
+        )
 
         attachment = Attachment(
             data=b"this is a test",
             content_type="text/plain"
-            )
+        )
 
         msg.attach(attachment)
 
@@ -375,48 +377,48 @@ class TestMessage(unittest.TestCase):
         body = Attachment(
             data=text,
             transfer_encoding=transfer_encoding
-            )
+        )
         html = Attachment(
             data=html_text,
             transfer_encoding=transfer_encoding
-            )
+        )
         msg = Message(
             subject="testing",
             sender="from@example.com",
             recipients=["to@example.com"],
             body=body,
             html=html,
-            )
+        )
         message = msg.to_message()
         body_part, html_part = message.get_payload()
 
         self.assertEqual(
             body_part['Content-Type'],
             'text/plain; charset="iso-8859-1"'
-            )
+        )
         self.assertEqual(
             body_part['Content-Transfer-Encoding'],
             transfer_encoding
-            )
+        )
         payload = body_part.get_payload()
         self.assertEqual(
             payload,
             _qencode(text_encoded).decode('ascii')
-            )
+        )
 
         self.assertEqual(
-            html_part['Content-Type'], 
+            html_part['Content-Type'],
             'text/html; charset="iso-8859-1"'
-            )
+        )
         self.assertEqual(
             html_part['Content-Transfer-Encoding'],
             transfer_encoding
-            )
+        )
         payload = html_part.get_payload()
         self.assertEqual(
             payload,
             _qencode(html_encoded).decode('ascii')
-            )
+        )
 
     def test_attach_as_body_and_html_utf8(self):
         from pyramid_mailer.message import Message
@@ -425,7 +427,7 @@ class TestMessage(unittest.TestCase):
         charset = 'utf-8'
         # greek small letter iota with dialtyika and tonos; this character
         # cannot be encoded to either ascii or latin-1, so utf-8 is chosen
-        text_encoded =  b'\xce\x90'
+        text_encoded = b'\xce\x90'
         text = text_encoded.decode(charset)
         html_encoded = b'<p>' + text_encoded + b'</p>'
         html_text = html_encoded.decode(charset)
@@ -433,50 +435,50 @@ class TestMessage(unittest.TestCase):
         body = Attachment(
             data=text,
             transfer_encoding=transfer_encoding,
-            )
+        )
         html = Attachment(
             data=html_text,
             transfer_encoding=transfer_encoding,
-            )
+        )
         msg = Message(
             subject="testing",
             sender="from@example.com",
             recipients=["to@example.com"],
             body=body,
             html=html,
-            )
+        )
         message = msg.to_message()
         body_part, html_part = message.get_payload()
 
         self.assertEqual(
             body_part['Content-Type'],
             'text/plain; charset="utf-8"'
-            )
-        
+        )
+
         self.assertEqual(
             body_part['Content-Transfer-Encoding'],
             transfer_encoding
-            )
+        )
 
         payload = body_part.get_payload()
         self.assertEqual(
             payload,
             _qencode(text_encoded).decode('ascii')
-            )
+        )
 
         self.assertEqual(
             html_part['Content-Type'],
             'text/html; charset="utf-8"'
-            )
+        )
         self.assertEqual(
             html_part['Content-Transfer-Encoding'],
             transfer_encoding
-            )
+        )
         payload = html_part.get_payload()
         self.assertEqual(
             payload,
             _qencode(html_encoded).decode('ascii')
-            )
+        )
 
     def test_attach_as_body(self):
         from pyramid_mailer.message import Message
@@ -489,27 +491,27 @@ class TestMessage(unittest.TestCase):
         body = Attachment(
             data=text,
             transfer_encoding=transfer_encoding
-            )
+        )
         msg = Message(
             subject="testing",
             sender="from@example.com",
             recipients=["to@example.com"],
             body=body
-            )
+        )
         body_part = msg.to_message()
 
         self.assertEqual(
             body_part['Content-Type'],
             'text/plain; charset="iso-8859-1"'
-            )
+        )
         self.assertEqual(
             body_part['Content-Transfer-Encoding'],
             transfer_encoding
-            )
+        )
         self.assertEqual(
             body_part.get_payload(),
             _qencode(text_encoded).decode('ascii')
-            )
+        )
 
     def test_attach_as_html(self):
         from pyramid_mailer.message import Message
@@ -523,28 +525,28 @@ class TestMessage(unittest.TestCase):
         html = Attachment(
             data=html_text,
             transfer_encoding=transfer_encoding
-            )
+        )
         msg = Message(
             subject="testing",
             sender="from@example.com",
             recipients=["to@example.com"],
             html=html,
-            )
+        )
 
         html_part = msg.to_message()
 
         self.assertEqual(
             html_part['Content-Type'],
             'text/html; charset="iso-8859-1"'
-            )
+        )
         self.assertEqual(
             html_part['Content-Transfer-Encoding'],
             transfer_encoding
-            )
+        )
         self.assertEqual(
             html_part.get_payload(),
             _qencode(html_encoded).decode('ascii')
-            )
+        )
 
     def test_bad_header_subject(self):
 
@@ -558,7 +560,7 @@ class TestMessage(unittest.TestCase):
             sender="from@example.com",
             body="testing",
             recipients=["to@example.com"]
-            )
+        )
 
         mailer = Mailer()
 
@@ -578,7 +580,7 @@ class TestMessage(unittest.TestCase):
             sender="from@example.com\n\r",
             recipients=["to@example.com"],
             body="testing"
-            )
+        )
         self.assertRaises(BadHeaders, mailer.send, msg)
 
     def test_bad_header_recipient(self):
@@ -597,7 +599,7 @@ class TestMessage(unittest.TestCase):
                 "to@example.com",
                 "to\r\n@example.com"],
             body="testing"
-            )
+        )
 
         self.assertRaises(BadHeaders, mailer.send, msg)
 
@@ -614,15 +616,15 @@ class TestMessage(unittest.TestCase):
                 'to@example.com'],
             bcc=['anotherperson@example.com'],
             body="testing"
-            )
-        
+        )
+
         self.assertEqual(
             msg.send_to,
             {"to@example.com",
              "somebodyelse@example.com",
              "anotherperson@example.com"}
-            )
-        
+        )
+
     def test_is_bad_headers_if_no_bad_headers(self):
         from pyramid_mailer.message import Message
         msg = Message(
@@ -630,7 +632,7 @@ class TestMessage(unittest.TestCase):
             sender="from@example.com",
             body="testing",
             recipients=["to@example.com"]
-            )
+        )
 
         self.assertFalse(msg.is_bad_headers())
 
@@ -640,7 +642,7 @@ class TestMessage(unittest.TestCase):
             sender="from@example.com",
             body="testing",
             recipients=["to@example.com"]
-            )
+        )
 
         self.assertFalse((msg.is_bad_headers()))
 
@@ -652,7 +654,7 @@ class TestMessage(unittest.TestCase):
             sender="from@\nexample.com",
             body="testing",
             recipients=["to@example.com"]
-            )
+        )
 
         self.assertTrue(msg.is_bad_headers())
 
@@ -664,7 +666,7 @@ class TestMessage(unittest.TestCase):
             recipients=["chrism@plope.com", "billg@microsoft.com"],
             body="Body",
             html="Html",
-            )
+        )
         message = response.to_message()
         self.assertEqual(text_type(message['To']),
                          'chrism@plope.com, billg@microsoft.com')
@@ -677,7 +679,7 @@ class TestMessage(unittest.TestCase):
             subject='Subject',
             body='Body',
             html='Html'
-            )
+        )
         attachment_type = 'text/html'
         this = os.path.abspath(__file__)
         attachment = Attachment(
@@ -685,7 +687,7 @@ class TestMessage(unittest.TestCase):
             content_type=attachment_type,
             data='data'.encode('ascii'),
             disposition='disposition'
-            )
+        )
         response.attach(attachment)
         message = response.to_message()
         self.assertEqual(message['Content-Type'], 'multipart/mixed')
@@ -695,29 +697,29 @@ class TestMessage(unittest.TestCase):
         self.assertEqual(
             payload[0]['Content-Type'],
             'multipart/alternative'
-            )
+        )
         self.assertTrue(
             payload[1]['Content-Type'].startswith(attachment_type)
-            )
+        )
 
         alt_payload = payload[0].get_payload()
         self.assertTrue(
             alt_payload[0]['Content-Type'].startswith('text/plain')
-            )
+        )
         self.assertTrue(
             alt_payload[1]['Content-Type'].startswith('text/html')
-            )
+        )
 
     def test_to_message_multipart_with_b64encoding(self):
         from pyramid_mailer.message import Message, Attachment
-        
+
         response = Message(
             recipients=['To'],
             sender='From',
             subject='Subject',
             body='Body',
             html='Html'
-            )
+        )
 
         this = os.path.abspath(__file__)
         with open(this, 'rb') as data:
@@ -727,7 +729,7 @@ class TestMessage(unittest.TestCase):
                 disposition='disposition',
                 transfer_encoding='base64',
                 data=data,
-                )
+            )
             response.attach(attachment)
             message = response.to_message()
             payload = message.get_payload()[1]
@@ -735,7 +737,7 @@ class TestMessage(unittest.TestCase):
         self.assertEqual(
             payload.get_payload(),
             _bencode(self._read_filedata(this, 'rb')).decode('ascii')
-            )
+        )
 
     def test_to_message_multipart_with_qpencoding(self):
         from pyramid_mailer.message import Message, Attachment
@@ -745,7 +747,7 @@ class TestMessage(unittest.TestCase):
             subject='Subject',
             body='Body',
             html='Html'
-            )
+        )
         this = os.path.abspath(__file__)
         with open(this, 'rb') as data:
             attachment = Attachment(
@@ -754,18 +756,18 @@ class TestMessage(unittest.TestCase):
                 disposition='disposition',
                 transfer_encoding='quoted-printable',
                 data=data,
-                )
+            )
             response.attach(attachment)
             message = response.to_message()
             payload = message.get_payload()[1]
         self.assertEqual(
             payload.get('Content-Transfer-Encoding'),
             'quoted-printable'
-            )
+        )
         self.assertEqual(
             payload.get_payload(),
-            _qencode(self._read_filedata(this,'rb')).decode('ascii')
-            )
+            _qencode(self._read_filedata(this, 'rb')).decode('ascii')
+        )
 
     def test_to_message_with_html_attachment(self):
         from pyramid_mailer.message import Message, Attachment
@@ -774,22 +776,22 @@ class TestMessage(unittest.TestCase):
             sender='From',
             subject='Subject',
             body='Body',
-            )
+        )
         attachment = Attachment(
             data=b'data',
             content_type='text/html'
-            )
+        )
         response.attach(attachment)
         message = response.to_message()
         att_payload = message.get_payload()[1]
         self.assertEqual(
             att_payload['Content-Type'],
             'text/html; charset="us-ascii"'
-            )
+        )
         self.assertEqual(
             att_payload.get_payload(),
             _bencode(b'data').decode('ascii')
-            )
+        )
 
     def test_to_message_with_binary_attachment(self):
         from pyramid_mailer.message import Message, Attachment
@@ -798,23 +800,23 @@ class TestMessage(unittest.TestCase):
             sender='From',
             subject='Subject',
             body='Body',
-            )
+        )
         data = os.urandom(100)
         attachment = Attachment(
             data=data,
             content_type='application/octet-stream',
-            )
+        )
         response.attach(attachment)
         message = response.to_message()
         att_payload = message.get_payload()[1]
         self.assertEqual(
             att_payload['Content-Type'],
             'application/octet-stream'
-            )
+        )
         self.assertEqual(
             att_payload.get_payload(),
             _bencode(data).decode('ascii')
-            )
+        )
 
     def test_message_is_quoted_printable_with_text_body(self):
         from pyramid_mailer.message import Message
@@ -824,10 +826,11 @@ class TestMessage(unittest.TestCase):
             subject="testing",
             sender="sender@example.com",
             body="THISSHOULDBEINMESSAGEBODY",
-            )
+        )
 
         response = msg.to_message()
         self.assertTrue("THISSHOULDBEINMESSAGEBODY" in text_type(response))
+
 
 class Test_normalize_header(unittest.TestCase):
     def _callFUT(self, header):
@@ -837,6 +840,7 @@ class Test_normalize_header(unittest.TestCase):
     def test_it(self):
         result = self._callFUT('content-type')
         self.assertEqual(result, 'Content-Type')
+
 
 class TestMailBase(unittest.TestCase):
     def _makeOne(self, items=()):
@@ -849,22 +853,22 @@ class TestMailBase(unittest.TestCase):
         self.assertEqual(
             base.content_encoding['Content-Type'],
             ('text/html', {})
-            )
+        )
 
     def test_set_content_type_with_params(self):
         base = self._makeOne()
-        base.set_content_type('text/html', {'a':'b'})
+        base.set_content_type('text/html', {'a': 'b'})
         self.assertEqual(
             base.content_encoding['Content-Type'],
-            ('text/html', {'a':'b'})
-            )
+            ('text/html', {'a': 'b'})
+        )
 
     def test_get_content_type(self):
         base = self._makeOne()
         self.assertEqual(
             base.get_content_type(),
             (None, {})
-            )
+        )
 
     def test_set_content_disposition(self):
         base = self._makeOne()
@@ -872,22 +876,22 @@ class TestMailBase(unittest.TestCase):
         self.assertEqual(
             base.content_encoding['Content-Disposition'],
             ('inline', {})
-            )
+        )
 
     def test_set_content_disposition_with_params(self):
         base = self._makeOne()
-        base.set_content_disposition('inline', {'a':'b'})
+        base.set_content_disposition('inline', {'a': 'b'})
         self.assertEqual(
             base.content_encoding['Content-Disposition'],
-            ('inline', {'a':'b'})
-            )
+            ('inline', {'a': 'b'})
+        )
 
     def test_get_content_disposition(self):
         base = self._makeOne()
         self.assertEqual(
             base.get_content_disposition(),
             (None, {})
-            )
+        )
 
     def test_set_transfer_encoding(self):
         base = self._makeOne()
@@ -895,14 +899,14 @@ class TestMailBase(unittest.TestCase):
         self.assertEqual(
             base.content_encoding['Content-Transfer-Encoding'],
             'base64'
-            )
-       
+        )
+
     def test_get_transfer_encoding(self):
         base = self._makeOne()
         self.assertEqual(
             base.get_transfer_encoding(),
             None
-            )
+        )
 
     def test_set_body(self):
         base = self._makeOne()
@@ -919,7 +923,7 @@ class TestMailBase(unittest.TestCase):
         another = self._makeOne()
         another.body = 'foo'
         another.content_encoding['foo'] = 'bar'
-        another.headers = {'a':'b'}
+        another.headers = {'a': 'b'}
         another.parts = [1]
         base.merge_part(another)
         self.assertEqual(base.body, 'foo')
@@ -931,7 +935,7 @@ class TestMailBase(unittest.TestCase):
         base = self._makeOne()
         base.attach_part(1)
         self.assertEqual(base.parts, [1])
-        
+
     def test___getitem__hit(self):
         base = self._makeOne([('Content-Type', 'text/html')])
         self.assertEqual(base['content-type'], 'text/html')
@@ -976,6 +980,7 @@ class TestMailBase(unittest.TestCase):
                               ('Content-Disposition', 'inline')])
         self.assertEqual(base.keys(), ['Content-Disposition', 'Content-Type'])
 
+
 class Test_to_message(unittest.TestCase):
     def _callFUT(self, mail):
         from pyramid_mailer.message import to_message
@@ -1011,7 +1016,7 @@ class Test_to_message(unittest.TestCase):
         self.assertEqual(
             result['Content-Type'],
             'text/plain'
-            )
+        )
 
     def test_ctype_doesnt_match_parts(self):
         mail = self._makeBase()
@@ -1028,7 +1033,7 @@ class Test_to_message(unittest.TestCase):
         self.assertEqual(
             result['Content-Type'],
             'text/plain; charset="us-ascii"'
-            )
+        )
         self.assertEqual(result['Content-Transfer-Encoding'], '7bit')
         payload = result.get_payload()
         self.assertEqual(payload, b'foo'.decode('ascii'))
@@ -1045,11 +1050,11 @@ class Test_to_message(unittest.TestCase):
         self.assertEqual(
             result['Content-Type'],
             'application/octet-stream; charset="utf-8"'
-            )
+        )
         self.assertEqual(result['Content-Transfer-Encoding'], 'base64')
         payload = result.get_payload()
         self.assertEqual(payload, _bencode(b'foo').decode('ascii'))
-        
+
     def test_recursion(self):
         mail = self._makeBase()
         another = self._makeBase()
@@ -1058,7 +1063,8 @@ class Test_to_message(unittest.TestCase):
         mail.parts = [another]
         result = self._callFUT(mail)
         self.assertTrue('hello' in result.as_string())
-        
+
+
 class Test_transfer_encode(unittest.TestCase):
     def _callFUT(self, encoding, payload):
         from pyramid_mailer.message import transfer_encode
@@ -1071,7 +1077,7 @@ class Test_transfer_encode(unittest.TestCase):
         self.assertEqual(
             result,
             _bencode(text_encoded)
-            )
+        )
 
     def test_body_is_text_quopri(self):
         text_encoded = b'LaPe\xf1a'
@@ -1079,7 +1085,7 @@ class Test_transfer_encode(unittest.TestCase):
         self.assertEqual(
             result,
             _qencode(text_encoded)
-            )
+        )
 
     def test_body_is_7bit(self):
         text_encoded = b'LaPe\xf1a'
@@ -1087,29 +1093,30 @@ class Test_transfer_encode(unittest.TestCase):
         self.assertEqual(
             self._callFUT('7bit', text_7bit),
             text_7bit
-            )
+        )
         with self.assertRaises(RuntimeError):
-            self._callFUT('7bit', text_encoded) 
+            self._callFUT('7bit', text_encoded)
 
     def test_body_is_8bit(self):
         text_encoded = b'LaPe\xf1a'
         self.assertEqual(
             self._callFUT('8bit', text_encoded),
             text_encoded
-            )
+        )
 
     def test_unknown_encoding(self):
         text_encoded = b'LaPe\xf1a'
         self.assertRaises(
             RuntimeError,
             self._callFUT, 'bogus', text_encoded
-            )
-        
+        )
+
+
 class TestFunctional(unittest.TestCase):
     def test_repoze_sendmail_send_to_queue_functional(self):
         # functest that emulates the interaction between pyramid_mailer and
         # repoze.maildir.add and queuedelivery.send.
-        
+
         import tempfile
         from email.generator import Generator
         from email.parser import Parser
@@ -1122,7 +1129,7 @@ class TestFunctional(unittest.TestCase):
             self.assertEqual(
                 msg['Content-Type'],
                 'text/plain; charset="iso-8859-1"'
-                )
+            )
             self.assertEqual(
                 msg['Content-Transfer-Encoding'], transfer_encoding)
 
@@ -1137,13 +1144,13 @@ class TestFunctional(unittest.TestCase):
         body = Attachment(
             data=text,
             transfer_encoding=transfer_encoding
-            )
+        )
         msg = Message(
             subject="testing",
             sender="from@example.com",
             recipients=["to@example.com"],
             body=body
-            )
+        )
 
         # done in pyramid_mailer via mailer/send_to_queue
         msg = msg.to_message()
@@ -1166,7 +1173,7 @@ class TestFunctional(unittest.TestCase):
             # emulate what repoze.sendmail maildir.py/add does
             fn = tempfile.mktemp()
             fd = os.open(fn,
-                         os.O_CREAT|os.O_EXCL|os.O_WRONLY,
+                         os.O_CREAT | os.O_EXCL | os.O_WRONLY,
                          0o600
                          )
             with os.fdopen(fd, 'w') as f:
@@ -1178,10 +1185,6 @@ class TestFunctional(unittest.TestCase):
                 parser = Parser()
                 reconstituted = parser.parse(foo)
                 checkit(reconstituted)
-                
-        finally: # pragma: no cover
-            try:
-                os.remove(fn)
-            except:
-                pass
 
+        finally:  # pragma: no cover
+                os.remove(fn)

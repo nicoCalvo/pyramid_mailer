@@ -1,5 +1,6 @@
 import unittest
 
+
 class TestEncodingError(unittest.TestCase):
     def _makeOne(self):
         from pyramid_mailer.exceptions import EncodingError
@@ -8,5 +9,3 @@ class TestEncodingError(unittest.TestCase):
     def test_it(self):
         inst = self._makeOne()
         self.assertTrue(isinstance(inst, Exception))
-
-

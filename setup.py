@@ -5,7 +5,7 @@ docs_extras = [
     'docutils',
     'repoze.sphinx.autointerface',
     'pylons-sphinx-themes >= 0.3',
-    ]
+]
 
 tests_require = []
 
@@ -13,7 +13,7 @@ testing_extras = tests_require + [
     'nose',
     'coverage',
     'WebTest',
-    ]
+]
 
 try:
     with open('README.rst') as f:
@@ -41,15 +41,14 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'pyramid',
         'repoze.sendmail>=4.1',
         'transaction',
     ],
-    tests_require = tests_require,
-    extras_require = {
-        'testing':testing_extras,
-        'docs':docs_extras,
-        },
+    tests_require=tests_require,
+    extras_require={
+        'testing': testing_extras,
+        'docs': docs_extras,
+    },
     test_suite='pyramid_mailer',
     classifiers=[
         'Intended Audience :: Developers',
